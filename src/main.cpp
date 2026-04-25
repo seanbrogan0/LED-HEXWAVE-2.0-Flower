@@ -1,18 +1,18 @@
+// /src/main.cpp
+// =========================================================
+// MAIN ENTRY POINT
+// Delegates to test_all_systems.cpp
+// =========================================================
+
 #include <Arduino.h>
 
-// put function declarations here:
-int myFunction(int, int);
+void test_setup();
+void test_loop();
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+    test_setup();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+    test_loop();
 }
