@@ -68,6 +68,13 @@ void test_mode_static() {
 // NON-AUDIO MODE 1: rotation test (left pot = speed)
 // ---------------------------------------------------------
 void test_mode_rotate() {
+    // Fill HEX2 with 6 palette colors (4 LEDs each) before rotating
+    for (int side = 0; side < 6; side++) {
+        uint32_t col = PALETTE_MASTER[side];
+        for (int i = 0; i < 4; i++) {
+            hex.setHexPixel(HEX2, side * 4 + i, col);
+        }
+    }
     int steps = modeEngine.leftPot() * 6; // 0–6 steps
     hex.rotateHex(HEX2, steps);
 }
@@ -86,7 +93,7 @@ void test_mode_audio_rgb() {
     uint32_t color = Adafruit_NeoPixel::Color(
         bN * 255,
         mN * 255,
-        treb * 255
+        tN * 255
     );
 
     hex.fillHex(HEX3, color);

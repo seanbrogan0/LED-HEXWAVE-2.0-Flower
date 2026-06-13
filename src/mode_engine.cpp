@@ -34,9 +34,10 @@ void ModeEngine::update() {
     // =====================================================
     bool leftReading = readButton(pinLeftBtn);
 
-    if (leftReading && !leftPressed) {
+    if (leftReading && !leftPressed && (now - lastBtnTime) >= BTN_DEBOUNCE_MS) {
         leftPressed = true;
         leftPressStart = now;
+        lastBtnTime = now;
     }
 
     if (!leftReading && leftPressed) {
@@ -64,9 +65,10 @@ void ModeEngine::update() {
     // =====================================================
     bool rightReading = readButton(pinRightBtn);
 
-    if (rightReading && !rightPressed) {
+    if (rightReading && !rightPressed && (now - lastBtnTime) >= BTN_DEBOUNCE_MS) {
         rightPressed = true;
         rightPressStart = now;
+        lastBtnTime = now;
     }
 
     if (!rightReading && rightPressed) {
@@ -87,7 +89,7 @@ void ModeEngine::update() {
 }
 
 void ModeEngine::loadState() {
-    audioEnabled = EEPROM.read(EEPROM_ADDR_AUDIO_ENABLED);
+    audioEnabled = (EEPROM.read(EEPROM_ADDR_AUDIO_ENABLED) == 1);
     audioMode    = EEPROM.read(EEPROM_ADDR_AUDIO_MODE);
     nonAudioMode = EEPROM.read(EEPROM_ADDR_NON_AUDIO_MODE);
 

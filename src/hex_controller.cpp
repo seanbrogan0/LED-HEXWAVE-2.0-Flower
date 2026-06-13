@@ -54,16 +54,7 @@ void HexController::setGlobalBrightness(float b) {
 }
 
 void HexController::show() {
-    // Apply brightness scaling to all LEDs
-    for (int i = 0; i < strip->numPixels(); i++) {
-        uint32_t c = strip->getPixelColor(i);
-
-        uint8_t r = ((c >> 16) & 0xFF) * globalBrightness;
-        uint8_t g = ((c >>  8) & 0xFF) * globalBrightness;
-        uint8_t b = ( c        & 0xFF) * globalBrightness;
-
-        strip->setPixelColor(i, strip->Color(r, g, b));
-    }
-
+    // Delegate brightness to the library so pixel data is never corrupted
+    strip->setBrightness((uint8_t)(globalBrightness * 255.0f + 0.5f));
     strip->show();
 }
