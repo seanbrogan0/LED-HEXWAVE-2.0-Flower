@@ -1,0 +1,8 @@
+{
+    "name": "hexcore",
+    "version": "1.0.0",
+    "description": "Arduino-free pure logic for HEXWAVE firmware (colour math, mode state machine, hex geometry, path math). Natively unit-testable.",
+    "build": {
+        "srcDir": "src"
+    }
+}
