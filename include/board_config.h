@@ -25,4 +25,5 @@
 #define NUM_LEDS            168
 #define MAX_BRIGHTNESS      255     // full range on this fixture
 #define BRIGHTNESS_FLOOR    0.02f   // right pot never turns the strip fully off
-#define FRAME_INTERVAL_MS   0       // 0 = run unpaced
+#define FRAME_INTERVAL_MS   10      // paced like the sister repo; per-frame
+                                    // effects (fades, blends) are deterministic

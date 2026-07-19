@@ -31,3 +31,6 @@ const int HEX7_SIDE_TO_HEX[6] = { 1, 6, 5, 4, 3, 2 };
 
 // VU fill: center first, then outer ring panels 0–5
 const int VU_ORDER[NUM_HEXES] = { 6, 0, 1, 2, 3, 4, 5 };
+
+// Outer-ring orbit in physical rotational order (closed cycle)
+const int HEX_PATH_RING[] = { 1, 6, 5, 4, 3, 2 };

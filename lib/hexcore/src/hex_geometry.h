@@ -38,3 +38,15 @@ extern const int HEX7_SIDE_TO_HEX[6];
 // VU-meter fill order: center first, then the outer ring
 // (0-based indices into HEXES)
 extern const int VU_ORDER[NUM_HEXES];
+
+// =========================================================
+// RING ORBIT PATH for path-travelling modes (1-based hex
+// numbers, matching the sister repo's path convention).
+// The outer ring in physical rotational order (taken from
+// the verified HEX7_SIDE_TO_HEX side order). This is a true
+// closed cycle — every consecutive pair is adjacent,
+// including the wrap 2 → 1 — so orbiting comets never
+// teleport. The per-hex HEXn[] LED tables are untouched.
+// =========================================================
+extern const int HEX_PATH_RING[];
+constexpr int PATH_LEN_RING = 6;
