@@ -17,6 +17,10 @@ uint32_t dimColour32(uint32_t c, float factor);
 // Linear blend a → b, t clamped to 0.0–1.0
 uint32_t lerpColour32(uint32_t a, uint32_t b, float t);
 
+// Per-channel maximum of two packed colours (used to fade a
+// pixel toward — but never below — a background colour)
+uint32_t maxColour32(uint32_t a, uint32_t b);
+
 // Generic helpers
 int clampInt(int v, int lo, int hi);
 float clampFloat(float v, float lo, float hi);

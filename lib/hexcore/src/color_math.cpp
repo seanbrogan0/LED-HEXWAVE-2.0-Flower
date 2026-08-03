@@ -32,6 +32,13 @@ uint32_t lerpColour32(uint32_t a, uint32_t b, float t) {
     return packColour(r, g, bl);
 }
 
+uint32_t maxColour32(uint32_t a, uint32_t b) {
+    uint8_t r = ((a >> 16) & 0xFF) > ((b >> 16) & 0xFF) ? (a >> 16) & 0xFF : (b >> 16) & 0xFF;
+    uint8_t g = ((a >> 8)  & 0xFF) > ((b >> 8)  & 0xFF) ? (a >> 8)  & 0xFF : (b >> 8)  & 0xFF;
+    uint8_t bl = ( a       & 0xFF) > ( b        & 0xFF) ?  a        & 0xFF :  b        & 0xFF;
+    return packColour(r, g, bl);
+}
+
 int clampInt(int v, int lo, int hi) {
     if (v < lo) return lo;
     if (v > hi) return hi;

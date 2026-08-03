@@ -23,13 +23,13 @@ There is no linter. The only tests runnable without hardware are the native Unit
 
 The codebase is split into two layers:
 
-1. **`lib/hexcore/`** — Arduino-free pure logic: colour math, the mode-selection state machine (`mode_state`), hex geometry (LED index tables, `HEX7_SIDE_TO_HEX` adjacency, `VU_ORDER`), and path math. No `Arduino.h` includes allowed here; this is what makes it natively unit-testable (`pio test -e native` builds it with the host compiler under `-std=gnu++17`).
+1. **`lib/hexcore/`** — Arduino-free pure logic: colour math, the mode-selection state machine (`mode_state`), hex geometry (LED index tables, `HEX7_SIDE_TO_HEX` adjacency, `VU_ORDER`, the `HEX_PATH_RING` outer-ring orbit), and path math. No `Arduino.h` includes allowed here; this is what makes it natively unit-testable (`pio test -e native` builds it with the host compiler under `-std=gnu++17`).
 
 2. **`include/` + `src/`** — Arduino-facing firmware. All hardware config (pins, LED count, brightness, frame pacing) lives in `include/board_config.h` and nowhere else.
 
 Key firmware pieces:
 
-- **`src/main.cpp`** — the ~60-line loop: pace frame (`FRAME_INTERVAL_MS`, 0 = unpaced here), `modeEngine.update()`, apply right-pot brightness (with `BRIGHTNESS_FLOOR`), run `audioUpdate()` once per frame when in audio mode, optionally `strip.clear()` per the mode's `autoClear` flag, dispatch the mode, `strip.show()`.
+- **`src/main.cpp`** — the ~60-line loop: pace frame (`FRAME_INTERVAL_MS`, 10 ms here, matching the sister repo), `modeEngine.update()`, apply right-pot brightness (with `BRIGHTNESS_FLOOR`), run `audioUpdate()` once per frame when in audio mode, optionally `strip.clear()` per the mode's `autoClear` flag, dispatch the mode, `strip.show()`.
 - **`src/mode_registry.cpp`** — two function-pointer tables (`audioModes`, `nonAudioModes`) of `{ fn, autoClear, name }`. The table sizes ARE the mode counts; button cycling and EEPROM validation derive from them automatically.
 - **`ModeEngine`** (`include/input.h`, `src/input.cpp`) — buttons (left short press = cycle mode, left long press ≥600 ms = reset, right = toggle audio group), IIR-smoothed pots (α = 0.1), and EEPROM persistence. The actual state transitions and EEPROM-byte validation are pure functions in `hexcore/mode_state` (bytes: 0 = audio flag, 1 = audio mode index, 2 = non-audio mode index).
 - **Audio engine** (`src/audio_engine.cpp`) — timed 8 kHz sampling, 256-sample FFT, bands cached per frame (bass < 300 Hz, mid < 1100 Hz, treble above); modes read the cached getters, never sample themselves. Normalization ceilings `BASS_MAX`/`MID_MAX`/`TREB_MAX` are hardware-tuned constants.
@@ -41,7 +41,7 @@ Key firmware pieces:
 2. Create `src/modes/<group>/mode_myMode.cpp` implementing it
 3. Add one `{ mode_myMode, autoClear, "My Mode" }` line to the table in `src/mode_registry.cpp`
 
-On this fixture every mode repaints all its pixels each frame, so all entries use `autoClear = true`.
+Most modes on this fixture repaint all their pixels each frame and use `autoClear = true`; modes whose trails depend on pixel persistence (Dual Ring Comets, Impact Sparks) use `autoClear = false`.
 
 ### Test-harness quirk
 

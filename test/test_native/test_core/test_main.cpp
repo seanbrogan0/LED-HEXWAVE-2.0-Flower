@@ -31,6 +31,18 @@ void test_dimColour32_factors() {
                             dimColour32(packColour(255, 100, 0), 0.4f));
 }
 
+void test_maxColour32_per_channel() {
+    // Takes the max of each channel independently
+    TEST_ASSERT_EQUAL_HEX32(packColour(200, 100, 50),
+        maxColour32(packColour(200, 20, 50), packColour(10, 100, 30)));
+    // A colour maxed with black is unchanged
+    TEST_ASSERT_EQUAL_HEX32(packColour(9, 0, 255),
+        maxColour32(packColour(9, 0, 255), 0));
+    // Fading toward a background floors at the background
+    uint32_t background = packColour(9, 0, 12);
+    TEST_ASSERT_EQUAL_HEX32(background, maxColour32(packColour(1, 0, 3), background));
+}
+
 void test_lerpColour32_endpoints_and_clamping() {
     uint32_t a = packColour(10, 20, 30);
     uint32_t b = packColour(200, 100, 50);
@@ -155,6 +167,26 @@ void test_center_side_slices_stay_inside_hex() {
     }
 }
 
+void test_ring_path_is_closed_cycle_of_outer_ring() {
+    // The orbit visits each outer-ring hex (1..6) exactly once,
+    // never the centre
+    TEST_ASSERT_EQUAL(6, PATH_LEN_RING);
+    bool used[7] = { false };
+    for (int i = 0; i < PATH_LEN_RING; i++) {
+        int h = HEX_PATH_RING[i];
+        TEST_ASSERT_TRUE_MESSAGE(h >= 1 && h <= 6, "ring path leaves the outer ring");
+        TEST_ASSERT_FALSE_MESSAGE(used[h], "ring path repeats a hex");
+        used[h] = true;
+    }
+
+    // Its order matches the verified side-adjacency rotational order:
+    // consecutive path entries are consecutive sides of the centre hex,
+    // which is what makes every step (and the wrap) physically adjacent
+    for (int i = 0; i < PATH_LEN_RING; i++) {
+        TEST_ASSERT_EQUAL(HEX7_SIDE_TO_HEX[i], HEX_PATH_RING[i]);
+    }
+}
+
 // =========================================================
 // path_math (generic — this fixture defines no built-in paths)
 // =========================================================
@@ -173,6 +205,15 @@ void test_pathPosToLED_hex_boundaries() {
         pathPosToLED(3 * HEX_LED_COUNT, TEST_PATH, TEST_PATH_LEN, HEXES, HEX_LED_COUNT));
 }
 
+void test_pathPosToLED_ring_boundaries() {
+    // The real ring-orbit data: position 0 is HEX1's first LED,
+    // position 24 crosses into HEX6 (the next hex around the ring)
+    TEST_ASSERT_EQUAL(HEX1[0],
+        pathPosToLED(0, HEX_PATH_RING, PATH_LEN_RING, HEXES, HEX_LED_COUNT));
+    TEST_ASSERT_EQUAL(HEX6[0],
+        pathPosToLED(HEX_LED_COUNT, HEX_PATH_RING, PATH_LEN_RING, HEXES, HEX_LED_COUNT));
+}
+
 void test_wrapPathPos_seam() {
     const int TOTAL = TEST_PATH_LEN * HEX_LED_COUNT;
     TEST_ASSERT_EQUAL(TOTAL - 1, wrapPathPos(-1, TOTAL));
@@ -189,6 +230,7 @@ int main(int, char**) {
 
     RUN_TEST(test_packColour_bit_layout);
     RUN_TEST(test_dimColour32_factors);
+    RUN_TEST(test_maxColour32_per_channel);
     RUN_TEST(test_lerpColour32_endpoints_and_clamping);
     RUN_TEST(test_clamp_helpers);
     RUN_TEST(test_wrapIndex);
@@ -203,8 +245,10 @@ int main(int, char**) {
     RUN_TEST(test_side_to_hex_is_permutation_of_outer_ring);
     RUN_TEST(test_vu_order_is_permutation_starting_at_center);
     RUN_TEST(test_center_side_slices_stay_inside_hex);
+    RUN_TEST(test_ring_path_is_closed_cycle_of_outer_ring);
 
     RUN_TEST(test_pathPosToLED_hex_boundaries);
+    RUN_TEST(test_pathPosToLED_ring_boundaries);
     RUN_TEST(test_wrapPathPos_seam);
 
     return UNITY_END();
