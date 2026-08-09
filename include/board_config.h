@@ -13,8 +13,8 @@
 // =========================================================
 #define PIN_LEDS        17
 #define PIN_LEFTBTN     4
-#define PIN_RIGHTBTN    5
-// (no PIN_LED_IND — this fixture has no audio indicator LED)
+#define PIN_RIGHTBTN    7   // wired to D7 on this fixture (not D5)
+#define PIN_LED_IND     6   // audio-mode indicator LED
 #define PIN_LEFTPOT     A3
 #define PIN_RIGHTPOT    A2
 #define PIN_MIC         A0

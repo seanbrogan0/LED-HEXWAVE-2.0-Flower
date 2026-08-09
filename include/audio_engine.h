@@ -19,6 +19,11 @@ extern const double BASS_MAX;
 extern const double MID_MAX;
 extern const double TREB_MAX;
 
+// Mic sensitivity from the left pot (0.0–1.0):
+// 0 = 0.25x gain, 0.5 = 1x (stock ceilings), 1 = 4x.
+// Scales the band sums, so raw and normalized getters both respond.
+void audioSetSensitivity(float pot01);
+
 // Sample the mic, run the FFT, and cache band values
 void audioUpdate(int micPin);
 

@@ -28,3 +28,7 @@ void runNonAudioMode(int index);
 // Whether the loop should clear the strip before this mode's frame
 bool audioModeAutoClear(int index);
 bool nonAudioModeAutoClear(int index);
+
+// Mode display name (out-of-range index returns "?")
+const char* audioModeName(int index);
+const char* nonAudioModeName(int index);

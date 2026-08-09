@@ -23,6 +23,13 @@ const double TREB_MAX = 150000.0;
 static double bassRaw = 0, midRaw = 0, trebRaw = 0;
 static double bassN = 0, midN = 0, trebN = 0;
 
+// Mic gain from the left pot (log curve, 1.0 at pot centre)
+static double micGain = 1.0;
+
+void audioSetSensitivity(float pot01) {
+    micGain = pow(4.0, (double)pot01 * 2.0 - 1.0);   // 0.25x – 4x
+}
+
 // =========================================================
 // SAMPLE AUDIO (ESP32-SAFE TIMED 8 kHz LOOP)
 // =========================================================
@@ -77,6 +84,12 @@ void audioUpdate(int micPin) {
     FFT.complexToMagnitude(vReal, vImag, SAMPLES);
 
     computeAudioBands();
+
+    // Apply pot-controlled gain before normalization so both the
+    // raw getters and the 0–1 bands respond to the sensitivity knob
+    bassRaw *= micGain;
+    midRaw  *= micGain;
+    trebRaw *= micGain;
 
     bassN = constrain(bassRaw / BASS_MAX, 0.0, 1.0);
     midN  = constrain(midRaw  / MID_MAX,  0.0, 1.0);

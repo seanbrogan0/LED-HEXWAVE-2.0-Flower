@@ -83,3 +83,13 @@ bool nonAudioModeAutoClear(int index) {
     if (index < 0 || index >= nonAudioModeCount()) return false;
     return nonAudioModes[index].autoClear;
 }
+
+const char* audioModeName(int index) {
+    if (index < 0 || index >= audioModeCount()) return "?";
+    return audioModes[index].name;
+}
+
+const char* nonAudioModeName(int index) {
+    if (index < 0 || index >= nonAudioModeCount()) return "?";
+    return nonAudioModes[index].name;
+}

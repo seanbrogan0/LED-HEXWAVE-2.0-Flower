@@ -10,15 +10,32 @@
 
 // =========================================================
 // NON-AUDIO MODE 1: Breathe
-// All hexes pulse a single palette color in and out.
-// Left pot = color selection.
+// All hexes pulse in and out on a smooth sine; each breath
+// starts a new palette colour, swapped at the dark point so
+// the change is invisible. Left pot = breath speed.
 // =========================================================
-void mode_breathe() {
-    float t = millis() / 1000.0f;
-    float breath = (sinf(t * 1.5f) + 1.0f) * 0.5f;  // 0.0–1.0 sine, ~4 s period
+static const float TWO_PI_F = 6.2831853f;
 
-    int colIndex = (int)(modeEngine.leftPot() * (PALETTE_MASTER_SIZE - 1));
-    uint32_t col = dimColour(PALETTE_MASTER[colIndex], breath);
+static float phase = 0.0f;          // 0 = dark, PI = full, 2*PI = dark again
+static unsigned long lastMs = 0;
+static int colIdx = 0;
+
+void mode_breathe() {
+    float s = modeEngine.leftPot();
+    float period = 8.0f - s * 6.5f;   // seconds per breath, 8 s slow -> 1.5 s fast
+
+    unsigned long now = millis();
+    if (lastMs == 0) lastMs = now;
+    phase += (now - lastMs) / 1000.0f * (TWO_PI_F / period);
+    lastMs = now;
+
+    if (phase >= TWO_PI_F) {
+        phase = fmodf(phase, TWO_PI_F);
+        colIdx = (colIdx + 1) % PALETTE_MASTER_SIZE;   // new colour while dark
+    }
+
+    float breath = (1.0f - cosf(phase)) * 0.5f;   // 0 -> 1 -> 0 over one breath
+    uint32_t col = dimColour(PALETTE_MASTER[colIdx], breath);
 
     for (int h = 0; h < NUM_HEXES; h++) {
         fillHex(h, col);

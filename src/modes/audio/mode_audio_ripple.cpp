@@ -2,7 +2,6 @@
 
 #include "modes/audio/mode_audio_ripple.h"
 #include "audio_engine.h"
-#include "input.h"
 #include "utils.h"
 #include "palette.h"
 #include "hex_geometry.h"
@@ -11,12 +10,14 @@
 // =========================================================
 // AUDIO MODE 4: Audio Ripple
 // A bass beat triggers a ripple that expands from center
-// outward through the outer ring, then fades.
-// Left pot = color.
+// outward through the outer ring, then fades. Each ripple
+// fires in a new random palette colour.
+// Left pot = mic sensitivity (applied in the audio engine).
 // =========================================================
 static int audioRippleState = -1;   // -1 = idle
 static float audioRipplePrevBass = 0.0f;
 static unsigned long lastAudioRippleStep = 0;
+static uint32_t rippleCol = 0;
 
 void mode_audio_ripple() {
     float bN = (float)audioBassNorm();
@@ -27,6 +28,7 @@ void mode_audio_ripple() {
         && bN > 0.3f) {
         audioRippleState = 0;
         lastAudioRippleStep = millis();
+        rippleCol = randomPaletteColour();   // new colour per ripple
     }
     audioRipplePrevBass = bN;
 
@@ -37,19 +39,17 @@ void mode_audio_ripple() {
         if (audioRippleState > 2) audioRippleState = -1;
     }
 
-    int colIndex = (int)(modeEngine.leftPot() * (PALETTE_MASTER_SIZE - 1));
-    uint32_t col = PALETTE_MASTER[colIndex];
-    uint32_t dimCol = dimColour(col, 0.35f);
+    uint32_t dimCol = dimColour(rippleCol, 0.35f);
 
     for (int h = 0; h < NUM_HEXES; h++) clearHex(h);
 
     switch (audioRippleState) {
         case 0:
-            fillHex(CENTER_HEX, col);                            // center full
+            fillHex(CENTER_HEX, rippleCol);                      // center full
             break;
         case 1:
             fillHex(CENTER_HEX, dimCol);                         // center fading
-            for (int i = 0; i < 6; i++) fillHex(i, col);         // ring full
+            for (int i = 0; i < 6; i++) fillHex(i, rippleCol);   // ring full
             break;
         case 2:
             for (int i = 0; i < 6; i++) fillHex(i, dimCol);      // ring fading

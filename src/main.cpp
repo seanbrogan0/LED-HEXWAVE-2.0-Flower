@@ -49,6 +49,8 @@ void loop() {
     strip.setBrightness((uint8_t)(brightness * MAX_BRIGHTNESS + 0.5f));
 
     if (modeEngine.audioModeEnabled()) {
+        // In the audio group the left pot is mic sensitivity, not colour
+        audioSetSensitivity(modeEngine.leftPot());
         audioUpdate(PIN_MIC);
         int mode = modeEngine.currentAudioMode();
         if (audioModeAutoClear(mode)) strip.clear();
@@ -64,9 +66,11 @@ void loop() {
     if (millis() - lastPrint > 1000) {
         lastPrint = millis();
         if (modeEngine.audioModeEnabled()) {
-            Serial.printf("Audio Mode: %d\n", modeEngine.currentAudioMode());
+            int mode = modeEngine.currentAudioMode();
+            Serial.printf("Audio Mode: %d (%s)\n", mode, audioModeName(mode));
         } else {
-            Serial.printf("Non-Audio Mode: %d\n", modeEngine.currentNonAudioMode());
+            int mode = modeEngine.currentNonAudioMode();
+            Serial.printf("Non-Audio Mode: %d (%s)\n", mode, nonAudioModeName(mode));
         }
     }
 #endif
